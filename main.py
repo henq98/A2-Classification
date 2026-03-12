@@ -177,7 +177,7 @@ def feature_visualization(X):
 
     # plot the data with first two features
     for i in range(5):
-        ax.scatter(X[100*i:100*(i+1), 3], X[100*i:100*(i+1), 4], marker="o", c=colors[i], edgecolor="k", label=labels[i])
+        ax.scatter(X[100*i:100*(i+1), 1], X[100*i:100*(i+1), 2], marker="o", c=colors[i], edgecolor="k", label=labels[i])
 
     # show the figure with labels
     """
@@ -218,7 +218,7 @@ def RF_classification(X, y):
 if __name__=='__main__':
     # specify the data folder
     """"Here you need to specify your own path"""
-    path = 'C:\Geomatics\Machine-learning\A2 classification - extract\pointclouds-500\pointclouds-500'
+    path = "/Users/macbook-mathijs/CME Master/Machine learning/Assignment 2/A2-Classification/pointclouds-500"
 
     # conduct feature preparation
     print('Start preparing features')
