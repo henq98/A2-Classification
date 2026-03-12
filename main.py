@@ -218,7 +218,7 @@ def RF_classification(X, y):
 if __name__=='__main__':
     # specify the data folder
     """"Here you need to specify your own path"""
-    path = ''C:\Geomatics\Machine-learning\A2 classification - extract\pointclouds-500\pointclouds-500''
+    path = 'C:\Geomatics\Machine-learning\A2 classification - extract\pointclouds-500\pointclouds-500'
 
     # conduct feature preparation
     print('Start preparing features')
