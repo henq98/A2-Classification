@@ -120,3 +120,4 @@ if __name__ == "__main__":
     # inspect single-feature distributions
     boxplot_feature(X, y, feat_idx=2)          # area
     histogram_feature(X, y, feat_idx=2, log_x=True)
+

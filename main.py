@@ -19,6 +19,11 @@ from os.path import exists, join
 from os import listdir
 
 
+#Students:
+# Henryk Gujda
+# Adriano Landman 
+# Mathijs  
+
 class urban_object:
     """
     Define an urban object
