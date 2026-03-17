@@ -261,6 +261,36 @@ def GB_classification(X, y):
     print(confusion_matrix(y_test, y_preds))
 
 
+if __name__ == '__main__':
+    path = r"C:\Geomatics\Machine-learning\A2 classification\pointclouds-500"
+
+    print('Start preparing features')
+    feature_preparation(data_path=path)
+
+    print('Start loading data')
+    ID, X, y = data_loading()
+
+    print('Visualize the features')
+    feature_visualization(X=X)
+
+    print('Start SVM classification')
+    SVM_classification(X, y)
+
+    print('Start RF classification')
+    RF_classification(X, y)
+
+    print('Start KNN classification')
+    KNN_classification(X, y)
+
+    print('Start Decision Tree classification')
+    DT_classification(X, y)
+
+    print('Start Naive Bayes classification')
+    NB_classification(X, y)
+
+    print('Start Gradient Boosting classification')
+    GB_classification(X, y)
+
 if __name__=='__main__':
     # specify the data folder
     """"Here you need to specify your own path"""
