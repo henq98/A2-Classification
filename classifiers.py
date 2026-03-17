@@ -10,9 +10,10 @@ from sklearn.preprocessing import StandardScaler
 FEATURE_NAMES = [
     "height", "mean_z", "std_z", "root_density", "area", "shape_index", "circularity",
     "elongation_xy", "slenderness", "rectangularity", "footprint_density",
-    "bbox_volume", "point_density_3d", "lower_fraction", "middle_fraction",
-    "upper_fraction", "top_roughness", "linearity", "planarity",
-    "sphericity", "anisotropy", "curvature"
+    "bbox_volume", "point_density_3d", "length_height_ratio",
+    "lower_fraction", "middle_fraction", "upper_fraction", "z_entropy",
+    "top_roughness", "top_density", "top_to_bottom_area_ratio",
+    "linearity", "planarity", "sphericity", "anisotropy", "curvature"
 ]
 
 
@@ -42,12 +43,24 @@ def SVM_classification(X, y, feature_indices=None):
         ("svm", svm.SVC())
     ])
 
-    param_grid = {
-        "svm__kernel": ["rbf", "linear", "poly"],
-        "svm__C": [0.1, 1, 10, 50, 100],
-        "svm__gamma": ["scale", 0.01, 0.1, 1],
-        "svm__degree": [2, 3]
-    }
+    # Fine-tuned around your previous best result
+    param_grid = [
+        {
+            "svm__kernel": ["rbf"],
+            "svm__C": [5, 10, 20, 30, 50],
+            "svm__gamma": ["scale", 0.01, 0.03, 0.05, 0.1]
+        },
+        {
+            "svm__kernel": ["linear"],
+            "svm__C": [0.1, 1, 5, 10, 20]
+        },
+        {
+            "svm__kernel": ["poly"],
+            "svm__C": [1, 5, 10],
+            "svm__degree": [2, 3],
+            "svm__gamma": ["scale", 0.01, 0.1]
+        }
+    ]
 
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
@@ -84,12 +97,13 @@ def RF_classification(X, y, feature_indices=None):
         X, y, test_size=0.4, random_state=42, stratify=y
     )
 
+    # Fine-tuned around your current best RF result
     param_grid = {
-        "n_estimators": [100, 200, 400],
-        "max_depth": [None, 10, 20, 30],
-        "min_samples_split": [2, 5, 10],
-        "min_samples_leaf": [1, 2, 4],
-        "max_features": ["sqrt", "log2", None]
+        "n_estimators": [150, 200, 300, 400],
+        "max_depth": [None, 15, 20, 30],
+        "min_samples_split": [2, 3, 5],
+        "min_samples_leaf": [1, 2],
+        "max_features": ["sqrt", "log2"]
     }
 
     rf = RandomForestClassifier(random_state=42)
@@ -123,8 +137,8 @@ def RF_classification(X, y, feature_indices=None):
     ranking = np.argsort(importances)[::-1]
 
     print("\nTop RF feature importances:")
-    for i in ranking[:10]:
+    for i in ranking[:12]:
         name = FEATURE_NAMES[i] if i < len(FEATURE_NAMES) else f"feature_{i}"
-        print(f"{name:20s} {importances[i]:.4f}")
+        print(f"{name:25s} {importances[i]:.4f}")
 
-    return best_model, acc, importances
+    return best_model, acc, importances, ranking
