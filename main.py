@@ -207,12 +207,58 @@ def SVM_classification(X, y):
 
 
 def RF_classification(X, y):
-    """
-    Conduct RF classification
-        X: features
-        y: labels
-    """
-    pass
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
+    clf = RandomForestClassifier(n_estimators=100, random_state=42)
+    clf.fit(X_train, y_train)
+    y_preds = clf.predict(X_test)
+    acc = accuracy_score(y_test, y_preds)
+    print("RF accuracy: %5.2f" % acc)
+    print("confusion matrix")
+    print(confusion_matrix(y_test, y_preds))
+
+
+def KNN_classification(X, y):
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
+    clf = KNeighborsClassifier(n_neighbors=5)
+    clf.fit(X_train, y_train)
+    y_preds = clf.predict(X_test)
+    acc = accuracy_score(y_test, y_preds)
+    print("KNN accuracy: %5.2f" % acc)
+    print("confusion matrix")
+    print(confusion_matrix(y_test, y_preds))
+
+
+def DT_classification(X, y):
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
+    clf = DecisionTreeClassifier(max_depth=10, random_state=42)
+    clf.fit(X_train, y_train)
+    y_preds = clf.predict(X_test)
+    acc = accuracy_score(y_test, y_preds)
+    print("Decision Tree accuracy: %5.2f" % acc)
+    print("confusion matrix")
+    print(confusion_matrix(y_test, y_preds))
+
+
+def NB_classification(X, y):
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
+    clf = GaussianNB()
+    clf.fit(X_train, y_train)
+    y_preds = clf.predict(X_test)
+    acc = accuracy_score(y_test, y_preds)
+    print("Naive Bayes accuracy: %5.2f" % acc)
+    print("confusion matrix")
+    print(confusion_matrix(y_test, y_preds))
+
+
+def GB_classification(X, y):
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
+    clf = GradientBoostingClassifier(n_estimators=100, random_state=42)
+    clf.fit(X_train, y_train)
+    y_preds = clf.predict(X_test)
+    acc = accuracy_score(y_test, y_preds)
+    print("Gradient Boosting accuracy: %5.2f" % acc)
+    print("confusion matrix")
+    print(confusion_matrix(y_test, y_preds))
 
 
 if __name__=='__main__':
