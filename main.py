@@ -1,23 +1,9 @@
-"""
-This demo shows how to visualize the designed features. Currently, only 2D feature space visualization is supported.
-I use the same data for A2 as my input.
-Each .xyz file is initialized as one urban object, from where a feature vector is computed.
-6 features are defined to describe an urban object.
-Required libraries: numpy, scipy, scikit learn, matplotlib, tqdm
-"""
+from features import feature_preparation
+from classifiers import data_loading, SVM_classification, RF_classification
+from visualize_features import scatter_two_features
 
-import math
-import matplotlib.pyplot as plt
-import numpy as np
-from sklearn.neighbors import KDTree
-from sklearn import svm
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, confusion_matrix
-from scipy.spatial import ConvexHull
-from tqdm import tqdm
-from os.path import exists, join
-from os import listdir
 
+<<<<<<< Adriano's-Branch
 
 #Students:
 # Henryk Gujda
@@ -197,50 +183,14 @@ def feature_visualization(X):
 def SVM_classification(X, y):
     """
     Conduct SVM classification
-        X: features
-        y: labels
-    """
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
-    clf = svm.SVC()
-    clf.fit(X_train, y_train)
-    y_preds = clf.predict(X_test)
-    acc = accuracy_score(y_test, y_preds)
-    print("SVM accuracy: %5.2f" % acc)
-    print("confusion matrix")
-    conf = confusion_matrix(y_test, y_preds)
-    print(conf)
 
 
-def RF_classification(X, y):
-    """
-    Conduct RF classification
-        X: features
-        y: labels
-    """
-    pass
+    print('Visualize features')
+    scatter_two_features(X, y, feat_x=1, feat_y=2)
 
-
-if __name__=='__main__':
-    # specify the data folder
-    """"Here you need to specify your own path"""
-    path = "/Users/macbook-mathijs/CME Master/Machine learning/Assignment 2/A2-Classification/pointclouds-500"
-
-    # conduct feature preparation
-    print('Start preparing features')
-    feature_preparation(data_path=path)
-
-    # load the data
-    print('Start loading data from the local file')
-    ID, X, y = data_loading()
-
-    # visualize features
-    print('Visualize the features')
-    feature_visualization(X=X)
-
-    # SVM classification
     print('Start SVM classification')
     SVM_classification(X, y)
 
-    # RF classification
     print('Start RF classification')
     RF_classification(X, y)
+    
