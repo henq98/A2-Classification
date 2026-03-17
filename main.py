@@ -13,12 +13,27 @@ if __name__ == '__main__':
     ID, X, y = data_loading('data.txt')
 
     print('Visualize features')
-    scatter_two_features(X, y, feat_x=8, feat_y=16)   # slenderness vs top_roughness
+    scatter_two_features(X, y, feat_x=8, feat_y=18)   # slenderness vs top_roughness
     scatter_two_features(X, y, feat_x=7, feat_y=6)    # elongation_xy vs circularity
-    scatter_two_features(X, y, feat_x=3, feat_y=4, log_y=True)  # root_density vs area
+    scatter_two_features(X, y, feat_x=13, feat_y=20)  # length_height_ratio vs top_to_bottom_area_ratio
 
-    print('Start SVM classification')
+    print('Start full SVM classification')
     svm_model, svm_acc = SVM_classification(X, y)
 
-    print('Start RF classification')
-    rf_model, rf_acc, rf_importances = RF_classification(X, y)
+    print('Start full RF classification')
+    rf_model, rf_acc, rf_importances, rf_ranking = RF_classification(X, y)
+
+    top8 = rf_ranking[:8].tolist()
+    top4 = rf_ranking[:4].tolist()
+
+    print("\nStart SVM with top 8 RF-ranked features")
+    SVM_classification(X, y, feature_indices=top8)
+
+    print("\nStart RF with top 8 RF-ranked features")
+    RF_classification(X, y, feature_indices=top8)
+
+    print("\nStart SVM with top 4 RF-ranked features")
+    SVM_classification(X, y, feature_indices=top4)
+
+    print("\nStart RF with top 4 RF-ranked features")
+    RF_classification(X, y, feature_indices=top4)
