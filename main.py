@@ -1,39 +1,48 @@
+from pathlib import Path
+
 from features import feature_preparation
-from classifiers import data_loading, SVM_classification, RF_classification
+from classifiers import data_loading, tune_svm, tune_rf
 from visualize_features import scatter_two_features
 
 
-if __name__ == '__main__':
-    path = "/Users/macbook-mathijs/CME Master/Machine learning/Assignment 2/A2-Classification/pointclouds-500"
+if __name__ == "__main__":
+    base_dir = Path(__file__).resolve().parent
+    data_path = base_dir / "pointclouds-500"
+    data_file = base_dir / "data.txt"
 
-    print('Start preparing features')
-    feature_preparation(data_path=path, data_file='data.txt', force_recompute=True)
+    print("Start preparing features")
+    feature_preparation(
+        data_path=str(data_path),
+        data_file=str(data_file),
+        force_recompute=True
+    )
 
-    print('Start loading data from the local file')
-    ID, X, y = data_loading('data.txt')
+    print("Start loading data")
+    ID, X, y = data_loading(str(data_file))
 
-    print('Visualize features')
-    scatter_two_features(X, y, feat_x=8, feat_y=18)   # slenderness vs top_roughness
-    scatter_two_features(X, y, feat_x=7, feat_y=6)    # elongation_xy vs circularity
-    scatter_two_features(X, y, feat_x=13, feat_y=20)  # length_height_ratio vs top_to_bottom_area_ratio
+    print("Visualize features")
+    # Current feature indices:
+    # 0 height
+    # 1 root_density
+    # 2 area
+    # 3 shape_index
+    # 4 linearity
+    # 5 sphericity
+    # 6 slenderness
+    # 7 length_height_ratio
+    # 8 circularity
+    # 9 footprint_density
 
-    print('Start full SVM classification')
-    svm_model, svm_acc = SVM_classification(X, y)
+    scatter_two_features(X, y, feat_x=6, feat_y=7)               # slenderness vs length_height_ratio
+    scatter_two_features(X, y, feat_x=8, feat_y=9)               # circularity vs footprint_density
+    scatter_two_features(X, y, feat_x=1, feat_y=2, log_y=True)   # root_density vs area
 
-    print('Start full RF classification')
-    rf_model, rf_acc, rf_importances, rf_ranking = RF_classification(X, y)
+    print("Start SVM tuning and classification")
+    svm_results = tune_svm(X, y, test_size=0.4, random_state=42)
 
-    top8 = rf_ranking[:8].tolist()
-    top4 = rf_ranking[:4].tolist()
+    print("Start RF tuning and classification")
+    rf_results = tune_rf(X, y, test_size=0.4, random_state=42)
 
-    print("\nStart SVM with top 8 RF-ranked features")
-    SVM_classification(X, y, feature_indices=top8)
-
-    print("\nStart RF with top 8 RF-ranked features")
-    RF_classification(X, y, feature_indices=top8)
-
-    print("\nStart SVM with top 4 RF-ranked features")
-    SVM_classification(X, y, feature_indices=top4)
-
-    print("\nStart RF with top 4 RF-ranked features")
-    RF_classification(X, y, feature_indices=top4)
+    print("\n Our recommended models:")
+    print("Best SVM params:", svm_results["best_params"])
+    print("Best RF params:", rf_results["best_params"])
