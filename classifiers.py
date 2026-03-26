@@ -8,13 +8,20 @@ from sklearn.preprocessing import StandardScaler
 
 
 FEATURE_NAMES = [
-    "height", "mean_z", "std_z", "root_density", "area", "shape_index", "circularity",
-    "elongation_xy", "slenderness", "rectangularity", "footprint_density",
-    "bbox_volume", "point_density_3d", "length_height_ratio",
-    "lower_fraction", "middle_fraction", "upper_fraction", "z_entropy",
-    "top_roughness", "top_density", "top_to_bottom_area_ratio",
-    "linearity", "planarity", "sphericity", "anisotropy", "curvature"
+    'height',
+    'root_density',
+    'area',
+    'shape_index',
+    'linearity',
+    'sphericity',
+    'slenderness',
+    'length_height_ratio',
+    'circularity',
+    'footprint_density',
 ]
+
+CLASS_NAMES = ["building", "car", "fence", "pole", "tree"]
+
 
 
 def data_loading(data_file='data.txt'):
@@ -25,14 +32,24 @@ def data_loading(data_file='data.txt'):
     return ID, X, y
 
 
+
 def select_features(X, feature_indices=None):
     if feature_indices is None:
         return X
     return X[:, feature_indices]
 
 
+
+def get_feature_names(feature_indices=None):
+    if feature_indices is None:
+        return FEATURE_NAMES
+    return [FEATURE_NAMES[i] for i in feature_indices]
+
+
+
 def SVM_classification(X, y, feature_indices=None):
     X = select_features(X, feature_indices)
+    selected_feature_names = get_feature_names(feature_indices)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.4, random_state=42, stratify=y
@@ -43,7 +60,6 @@ def SVM_classification(X, y, feature_indices=None):
         ("svm", svm.SVC())
     ])
 
-    # Fine-tuned around your previous best result
     param_grid = [
         {
             "svm__kernel": ["rbf"],
@@ -79,25 +95,27 @@ def SVM_classification(X, y, feature_indices=None):
 
     acc = accuracy_score(y_test, y_preds)
     print("\n===== SVM RESULTS =====")
+    print("Used features:", selected_feature_names)
     print("Best parameters:", grid.best_params_)
     print("Cross-val best score: %5.3f" % grid.best_score_)
     print("Test accuracy: %5.3f" % acc)
     print("Confusion matrix:")
     print(confusion_matrix(y_test, y_preds))
     print("Classification report:")
-    print(classification_report(y_test, y_preds, digits=3))
+    print(classification_report(y_test, y_preds, target_names=CLASS_NAMES, digits=3))
 
-    return best_model, acc
+    return best_model, acc, grid.best_params_, grid.best_score_
+
 
 
 def RF_classification(X, y, feature_indices=None):
     X = select_features(X, feature_indices)
+    selected_feature_names = get_feature_names(feature_indices)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.4, random_state=42, stratify=y
     )
 
-    # Fine-tuned around your current best RF result
     param_grid = {
         "n_estimators": [150, 200, 300, 400],
         "max_depth": [None, 15, 20, 30],
@@ -125,20 +143,21 @@ def RF_classification(X, y, feature_indices=None):
 
     acc = accuracy_score(y_test, y_preds)
     print("\n===== RF RESULTS =====")
+    print("Used features:", selected_feature_names)
     print("Best parameters:", grid.best_params_)
     print("Cross-val best score: %5.3f" % grid.best_score_)
     print("Test accuracy: %5.3f" % acc)
     print("Confusion matrix:")
     print(confusion_matrix(y_test, y_preds))
     print("Classification report:")
-    print(classification_report(y_test, y_preds, digits=3))
+    print(classification_report(y_test, y_preds, target_names=CLASS_NAMES, digits=3))
 
     importances = best_model.feature_importances_
     ranking = np.argsort(importances)[::-1]
 
-    print("\nTop RF feature importances:")
-    for i in ranking[:12]:
-        name = FEATURE_NAMES[i] if i < len(FEATURE_NAMES) else f"feature_{i}"
-        print(f"{name:25s} {importances[i]:.4f}")
+    print("\nRF feature importances for the used feature set:")
+    for i in ranking:
+        print(f"{selected_feature_names[i]:20s} {importances[i]:.4f}")
 
-    return best_model, acc, importances, ranking
+    return best_model, acc, grid.best_params_, grid.best_score_, importances, ranking
+

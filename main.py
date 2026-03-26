@@ -1,39 +1,56 @@
 from features import feature_preparation
-from classifiers import data_loading, SVM_classification, RF_classification
-from visualize_features import scatter_two_features
+from classifiers import data_loading, SVM_classification, RF_classification, FEATURE_NAMES
+from feature_selection import forward_search, print_forward_history
 
+INITIAL_FEATURES = [
+    'height',
+    'root_density',
+    'area',
+    'shape_index',
+    'linearity',
+    'sphericity',
+    'slenderness',
+    'length_height_ratio',
+    'circularity',
+    'footprint_density',
+]
 
 if __name__ == '__main__':
-    path = "/Users/macbook-mathijs/CME Master/Machine learning/Assignment 2/A2-Classification/pointclouds-500"
+    path = "C:/Users/A3ano/OneDrive/Documenten/ML in the BE/Assingment 2/A2-Classification/pointclouds-500"
 
     print('Start preparing features')
-    feature_preparation(data_path=path, data_file='data.txt', force_recompute=True)
+    feature_preparation(data_path=path)
 
     print('Start loading data from the local file')
-    ID, X, y = data_loading('data.txt')
+    ID, X, y = data_loading()
 
-    print('Visualize features')
-    scatter_two_features(X, y, feat_x=8, feat_y=18)   # slenderness vs top_roughness
-    scatter_two_features(X, y, feat_x=7, feat_y=6)    # elongation_xy vs circularity
-    scatter_two_features(X, y, feat_x=13, feat_y=20)  # length_height_ratio vs top_to_bottom_area_ratio
+    print('\nInitial designed feature set:')
+    print(INITIAL_FEATURES)
 
-    print('Start full SVM classification')
-    svm_model, svm_acc = SVM_classification(X, y)
+    selected_indices, selected_names, history = forward_search(
+        X,
+        y,
+        FEATURE_NAMES,
+        INITIAL_FEATURES,
+        d=4,
+        normalize=True,
+    )
 
-    print('Start full RF classification')
-    rf_model, rf_acc, rf_importances, rf_ranking = RF_classification(X, y)
+    print_forward_history(history)
+    print('\nFinal selected 4 features from forward search:')
+    print(selected_names)
 
-    top8 = rf_ranking[:8].tolist()
-    top4 = rf_ranking[:4].tolist()
+    print('\nStart SVM classification with the 4 forward-selected features')
+    svm_model_selected, svm_acc_selected, svm_best_params, svm_cv_score = SVM_classification(
+        X,
+        y,
+        feature_indices=selected_indices,
+    )
 
-    print("\nStart SVM with top 8 RF-ranked features")
-    SVM_classification(X, y, feature_indices=top8)
+    print('\nStart RF classification with the 4 forward-selected features')
+    rf_model_selected, rf_acc_selected, rf_best_params, rf_cv_score, rf_importances, rf_ranking = RF_classification(
+        X,
+        y,
+        feature_indices=selected_indices,
+    )
 
-    print("\nStart RF with top 8 RF-ranked features")
-    RF_classification(X, y, feature_indices=top8)
-
-    print("\nStart SVM with top 4 RF-ranked features")
-    SVM_classification(X, y, feature_indices=top4)
-
-    print("\nStart RF with top 4 RF-ranked features")
-    RF_classification(X, y, feature_indices=top4)
