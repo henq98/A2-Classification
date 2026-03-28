@@ -63,18 +63,18 @@ def SVM_classification(X, y, feature_indices=None):
     param_grid = [
         {
             "svm__kernel": ["rbf"],
-            "svm__C": [5, 10, 20, 30, 50],
+            "svm__C": [5, 10, 15, 30, 50, 100],
             "svm__gamma": ["scale", 0.01, 0.03, 0.05, 0.1]
         },
         {
             "svm__kernel": ["linear"],
-            "svm__C": [0.1, 1, 5, 10, 20]
+            "svm__C": [5, 10, 15, 30, 50, 100]
         },
         {
             "svm__kernel": ["poly"],
-            "svm__C": [1, 5, 10],
-            "svm__degree": [2, 3],
-            "svm__gamma": ["scale", 0.01, 0.1]
+            "svm__C": [5, 10, 15, 30, 50, 100],
+            "svm__degree": [1, 2, 3],
+            "svm__gamma": ["scale", 0.01, 0.03, 0.05, 0.10]
         }
     ]
 

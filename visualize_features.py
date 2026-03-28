@@ -3,15 +3,21 @@ import matplotlib.pyplot as plt
 
 
 FEATURE_NAMES = [
-    "height", "mean_z", "std_z", "root_density", "area", "shape_index", "circularity",
-    "elongation_xy", "slenderness", "rectangularity", "footprint_density",
-    "bbox_volume", "point_density_3d", "lower_fraction", "middle_fraction",
-    "upper_fraction", "top_roughness", "linearity", "planarity",
-    "sphericity", "anisotropy", "curvature"
+    'height',
+    'root_density',
+    'area',
+    'shape_index',
+    'linearity',
+    'sphericity',
+    'slenderness',
+    'length_height_ratio',
+    'circularity',
+    'footprint_density',
 ]
 
 CLASS_LABELS = ["building", "car", "fence", "pole", "tree"]
 CLASS_COLORS = ["firebrick", "grey", "darkorange", "dodgerblue", "olivedrab"]
+
 
 
 def load_data(data_file="data.txt"):
@@ -20,6 +26,7 @@ def load_data(data_file="data.txt"):
     y = data[:, 1].astype(np.int32)
     X = data[:, 2:].astype(np.float32)
     return ID, X, y
+
 
 
 def scatter_two_features(X, y, feat_x, feat_y, log_y=False, log_x=False):

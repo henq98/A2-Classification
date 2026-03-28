@@ -1,6 +1,9 @@
 from features import feature_preparation
 from classifiers import data_loading, SVM_classification, RF_classification, FEATURE_NAMES
 from feature_selection import forward_search, print_forward_history
+from learning_curves import compute_learning_curve, print_learning_curve_results, plot_learning_curve
+
+
 
 INITIAL_FEATURES = [
     'height',
@@ -14,6 +17,9 @@ INITIAL_FEATURES = [
     'circularity',
     'footprint_density',
 ]
+
+TRAIN_RATIOS = [i / 10.0 for i in range(1, 10)]  # 0.1, 0.2, ..., 0.9
+N_REPEATS = 10
 
 if __name__ == '__main__':
     path = "C:/Users/A3ano/OneDrive/Documenten/ML in the BE/Assingment 2/A2-Classification/pointclouds-500"
@@ -52,5 +58,45 @@ if __name__ == '__main__':
         X,
         y,
         feature_indices=selected_indices,
+    )
+
+    print('\nGenerate learning curve for final SVM model')
+    svm_curve = compute_learning_curve(
+        estimator=svm_model_selected,
+        X=X,
+        y=y,
+        feature_indices=selected_indices,
+        train_ratios=TRAIN_RATIOS,
+        n_repeats=N_REPEATS,
+        random_state=42,
+    )
+    print_learning_curve_results(svm_curve, 'SVM')
+
+    plot_learning_curve(
+        svm_curve,
+        model_name='SVM',
+        metric='error',
+        save_path='learning_curve_svm_error.png',
+        show=False,
+    )
+
+    print('\nGenerate learning curve for final RF model')
+    rf_curve = compute_learning_curve(
+        estimator=rf_model_selected,
+        X=X,
+        y=y,
+        feature_indices=selected_indices,
+        train_ratios=TRAIN_RATIOS,
+        n_repeats=N_REPEATS,
+        random_state=42,
+    )
+    print_learning_curve_results(rf_curve, 'RF')
+    
+    plot_learning_curve(
+        rf_curve,
+        model_name='RF',
+        metric='error',
+        save_path='learning_curve_rf_error.png',
+        show=False,
     )
 
