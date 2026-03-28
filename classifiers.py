@@ -37,12 +37,17 @@ def subset_features(X, feature_indices=None):
 
 def print_results(title, y_test, y_pred, best_params=None, cv_score=None):
     acc = accuracy_score(y_test, y_pred)
+    err = 1.0 - acc
+
     print(f"\n===== {title} =====")
     if best_params is not None:
         print("Best parameters:", best_params)
     if cv_score is not None:
         print("Best cross-val accuracy: %.3f" % cv_score)
+        print("Best cross-val error rate: %.3f" % (1.0 - cv_score))
+
     print("Test accuracy: %.3f" % acc)
+    print("Test error rate: %.3f" % err)
     print("Confusion matrix:")
     print(confusion_matrix(y_test, y_pred))
     print("Classification report:")
@@ -78,18 +83,13 @@ def tune_svm(X, y, feature_indices=None, test_size=0.4, random_state=42):
         },
         {
             "svm__kernel": ["rbf"],
-            "svm__C": [0.1, 1, 10, 30, 50, 100],
-            "svm__gamma": ["scale", 0.001, 0.01, 0.03, 0.05, 0.1, 1]
+            "svm__C": [0.1, 1, 5, 10, 15, 30, 50, 100],
+            "svm__gamma": ["scale", 0.01, 0.03, 0.05, 0.1]
         },
         {
             "svm__kernel": ["poly"],
-            "svm__C": [0.1, 1, 10, 30],
-            "svm__degree": [2, 3, 4],
-            "svm__gamma": ["scale", 0.01, 0.1]
-        },
-        {
-            "svm__kernel": ["sigmoid"],
-            "svm__C": [0.1, 1, 10],
+            "svm__C": [0.1, 1, 10, 50],
+            "svm__degree": [2, 3],
             "svm__gamma": ["scale", 0.01, 0.1]
         }
     ]
@@ -102,7 +102,8 @@ def tune_svm(X, y, feature_indices=None, test_size=0.4, random_state=42):
         scoring="accuracy",
         cv=cv,
         n_jobs=-1,
-        refit=True
+        refit=True,
+        return_train_score=True,
     )
 
     grid.fit(X_train, y_train)
@@ -120,10 +121,13 @@ def tune_svm(X, y, feature_indices=None, test_size=0.4, random_state=42):
     return {
         "model": best_model,
         "accuracy": acc,
+        "error_rate": 1.0 - acc,
         "best_params": grid.best_params_,
         "cv_score": grid.best_score_,
+        "cv_results": grid.cv_results_,
+        "X_test": X_test,
         "y_test": y_test,
-        "y_pred": y_pred
+        "y_pred": y_pred,
     }
 
 
@@ -136,11 +140,11 @@ def tune_rf(X, y, feature_indices=None, test_size=0.4, random_state=42):
     rf = RandomForestClassifier(random_state=random_state)
 
     param_grid = {
-        "n_estimators": [100, 200, 300, 500],
-        "max_depth": [None, 10, 20, 30],
-        "max_features": ["sqrt", "log2", None],
-        "min_samples_split": [2, 5, 10],
-        "min_samples_leaf": [1, 2, 4]
+        "n_estimators": [100, 150, 200, 300, 400],
+        "max_depth": [None, 10, 20],
+        "max_features": ["sqrt", "log2"],
+        "min_samples_split": [2, 3, 5],
+        "min_samples_leaf": [1, 2]
     }
 
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
@@ -151,7 +155,8 @@ def tune_rf(X, y, feature_indices=None, test_size=0.4, random_state=42):
         scoring="accuracy",
         cv=cv,
         n_jobs=-1,
-        refit=True
+        refit=True,
+        return_train_score=True,
     )
 
     grid.fit(X_train, y_train)
@@ -170,16 +175,19 @@ def tune_rf(X, y, feature_indices=None, test_size=0.4, random_state=42):
     ranking = np.argsort(importances)[::-1]
 
     print("\nTop RF feature importances:")
-    for i in ranking[:10]:
+    for i in ranking:
         print(f"{FEATURE_NAMES[i]:25s} {importances[i]:.4f}")
 
     return {
         "model": best_model,
         "accuracy": acc,
+        "error_rate": 1.0 - acc,
         "best_params": grid.best_params_,
         "cv_score": grid.best_score_,
+        "cv_results": grid.cv_results_,
         "importances": importances,
         "ranking": ranking,
+        "X_test": X_test,
         "y_test": y_test,
-        "y_pred": y_pred
+        "y_pred": y_pred,
     }
