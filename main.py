@@ -75,7 +75,6 @@ if __name__ == '__main__':
     plot_learning_curve(
         svm_curve,
         model_name='SVM',
-        metric='error',
         save_path='learning_curve_svm_error.png',
         show=False,
     )
@@ -92,10 +91,10 @@ if __name__ == '__main__':
     )
     print_learning_curve_results(rf_curve, 'RF')
     
+    
     plot_learning_curve(
         rf_curve,
         model_name='RF',
-        metric='error',
         save_path='learning_curve_rf_error.png',
         show=False,
     )
